@@ -381,6 +381,96 @@
         .review-name { font-weight: 600; font-size: 0.9rem; color: var(--dark); }
         .review-apt { font-size: 0.8rem; color: var(--text-light); }
 
+        /* CALENDAR */
+        .calendar-section {
+            padding: 0 1.5rem 1.5rem;
+            border-top: 1px solid #f3f4f6;
+            margin-top: 1rem;
+            padding-top: 1.5rem;
+        }
+        .calendar-section h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .calendar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        .calendar-nav {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .calendar-nav button {
+            background: #f3f4f6;
+            border: none;
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            color: #374151;
+        }
+        .calendar-nav button:hover { background: var(--gold); color: white; }
+        .calendar-month {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            text-align: center;
+        }
+        .cal-day-name {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            padding: 0.5rem 0;
+        }
+        .cal-day {
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .cal-day.available { background: #ecfdf5; color: #065f46; cursor: pointer; }
+        .cal-day.available:hover { background: #a7f3d0; }
+        .cal-day.booked { background: #fef2f2; color: #991b1b; cursor: not-allowed; text-decoration: line-through; }
+        .cal-day.today { border: 2px solid var(--gold); font-weight: 700; }
+        .cal-day.other-month { opacity: 0.3; }
+        .cal-day.empty { background: transparent; }
+        .cal-legend {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+        .cal-legend span { display: flex; align-items: center; gap: 0.4rem; }
+        .cal-legend .dot {
+            width: 12px; height: 12px;
+            border-radius: 3px;
+            display: inline-block;
+        }
+        .cal-legend .dot.green { background: #ecfdf5; border: 1px solid #a7f3d0; }
+        .cal-legend .dot.red { background: #fef2f2; border: 1px solid #fecaca; }
+
         /* FOOTER */
         .footer {
             text-align: center;
@@ -400,6 +490,10 @@
             .modal-gallery { grid-template-columns: 1fr; }
             .modal-gallery img.main-photo { height: 250px; }
             .modal-gallery img { height: 180px; }
+            .calendar-header { flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
+            .calendar-grid { font-size: 0.8rem; }
+            .calendar-grid .cal-day { height: 36px; font-size: 0.8rem; }
+            .cal-legend { flex-wrap: wrap; justify-content: center; }
         }
 
         /* SCROLLBAR */
@@ -449,6 +543,21 @@
         <button class="modal-close" onclick="closeModal()">✕</button>
         <div class="modal-gallery" id="modalGallery"></div>
         <div class="modal-body" id="modalBody"></div>
+        <div class="calendar-section" id="calendarSection">
+            <h3>📅 Kalendarz dostępności</h3>
+            <div class="calendar-header">
+                <div class="calendar-month" id="calMonth"></div>
+                <div class="calendar-nav">
+                    <button onclick="calPrevMonth()">◀</button>
+                    <button onclick="calNextMonth()">▶</button>
+                </div>
+            </div>
+            <div class="calendar-grid" id="calGrid"></div>
+            <div class="cal-legend">
+                <span><span class="dot green"></span> Dostępny</span>
+                <span><span class="dot red"></span> Zarezerwowany</span>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -559,6 +668,107 @@ function renderReviews(data) {
             </div>
         </div>`;
     }).join('');
+}
+
+// ===== CALENDAR =====
+let calViewYear, calViewMonth, calCurrentAptId;
+
+function generateBookedDates(seed) {
+    // Generuje unikalne zajęte daty dla każdego apartamentu
+    const dates = [];
+    const today = new Date();
+    const months = [0, 1, 2]; // bieżący i 2 kolejne miesiące
+    let hash = 0;
+    for (let i = 0; i < seed.length; i++) {
+        hash = ((hash << 5) - hash) + seed.charCodeAt(i);
+        hash |= 0;
+    }
+    for (let m of months) {
+        const year = today.getFullYear();
+        const month = today.getMonth() + m;
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        // Każdy apartament ma 8-14 zajętych dni na miesiąc
+        const numBooked = 8 + (Math.abs(hash + m * 7) % 7);
+        const used = new Set();
+        for (let i = 0; i < numBooked; i++) {
+            let day = 1 + (Math.abs(hash + i * 13 + m * 31) % daysInMonth);
+            if (!used.has(day)) {
+                used.add(day);
+                dates.push(`${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`);
+            }
+        }
+    }
+    return dates;
+}
+
+function isDateBooked(apt, year, month, day) {
+    const ds = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    return apt.bookedDates && apt.bookedDates.includes(ds);
+}
+
+function renderCalendar(apt, year, month) {
+    const monthNames = ['Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec',
+                        'Lipiec', 'Sierpień', 'Wrzesień', 'Październik', 'Listopad', 'Grudzień'];
+    document.getElementById('calMonth').textContent = `${monthNames[month]} ${year}`;
+    
+    const firstDay = new Date(year, month, 1).getDay(); // 0=Sun
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInPrev = new Date(year, month, 0).getDate();
+    const today = new Date();
+    
+    let grid = document.getElementById('calGrid');
+    const dayNames = ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'Sb', 'Nd'];
+    
+    let html = dayNames.map(d => `<div class="cal-day-name">${d}</div>`).join('');
+    
+    // Dni z poprzedniego miesiąca
+    let startOffset = firstDay === 0 ? 6 : firstDay - 1;
+    for (let i = startOffset - 1; i >= 0; i--) {
+        html += `<div class="cal-day empty other-month">${daysInPrev - i}</div>`;
+    }
+    
+    // Dni bieżącego miesiąca
+    for (let d = 1; d <= daysInMonth; d++) {
+        const booked = isDateBooked(apt, year, month, d);
+        const isToday = year === today.getFullYear() && month === today.getMonth() && d === today.getDate();
+        let cls = 'cal-day';
+        if (booked) cls += ' booked';
+        else cls += ' available';
+        if (isToday) cls += ' today';
+        html += `<div class="${cls}">${d}</div>`;
+    }
+    
+    // Dni następnego miesiąca (wypełnienie do pełnego tygodnia)
+    const totalCells = startOffset + daysInMonth;
+    const remaining = (7 - (totalCells % 7)) % 7;
+    for (let d = 1; d <= remaining; d++) {
+        html += `<div class="cal-day empty other-month">${d}</div>`;
+    }
+    
+    grid.innerHTML = html;
+}
+
+function openCalendarForApt(apt) {
+    const today = new Date();
+    calViewYear = today.getFullYear();
+    calViewMonth = today.getMonth();
+    calCurrentAptId = apt.id;
+    if (!apt.bookedDates) apt.bookedDates = generateBookedDates(apt.id);
+    renderCalendar(apt, calViewYear, calViewMonth);
+}
+
+function calPrevMonth() {
+    calViewMonth--;
+    if (calViewMonth < 0) { calViewMonth = 11; calViewYear--; }
+    const apt = apartments.find(a => a.id === calCurrentAptId);
+    if (apt) renderCalendar(apt, calViewYear, calViewMonth);
+}
+
+function calNextMonth() {
+    calViewMonth++;
+    if (calViewMonth > 11) { calViewMonth = 0; calViewYear++; }
+    const apt = apartments.find(a => a.id === calCurrentAptId);
+    if (apt) renderCalendar(apt, calViewYear, calViewMonth);
 }
 
 // ===== APARTMENTS DATA =====
@@ -962,6 +1172,8 @@ function openModal(id) {
         <div class="amenities-title">🏷️ Udogodnienia:</div>
         <div class="amenities-list">${apt.amenities.map(a => `<span>${a}</span>`).join('')}</div>
     `;
+    
+    openCalendarForApt(apt);
     
     document.getElementById('modalOverlay').classList.add('open');
     document.body.style.overflow = 'hidden';
