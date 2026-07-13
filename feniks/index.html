@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feniks Apartments - Toruń</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --gold: #c9a84c;
+            --gold-light: #e8d08a;
+            --dark: #1a1a2e;
+            --dark2: #16213e;
+            --card-bg: #ffffff;
+            --text: #2d2d2d;
+            --text-light: #6b7280;
+            --shadow: 0 10px 40px rgba(0,0,0,0.08);
+            --radius: 16px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f7f4;
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* HERO */
+        .hero {
+            background: linear-gradient(135deg, var(--dark) 0%, var(--dark2) 100%);
+            color: white;
+            padding: 4rem 2rem 3rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 50%, rgba(201,168,76,0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 50%, rgba(201,168,76,0.05) 0%, transparent 50%);
+        }
+        .hero-content { position: relative; z-index: 1; max-width: 800px; margin: 0 auto; }
+        .hero-badge {
+            display: inline-block;
+            background: rgba(201,168,76,0.2);
+            color: var(--gold-light);
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(201,168,76,0.3);
+        }
+        .hero h1 { font-size: 3rem; font-weight: 700; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+        .hero h1 span { color: var(--gold); }
+        .hero p { font-size: 1.1rem; color: rgba(255,255,255,0.7); margin-bottom: 1.5rem; }
+        .hero-stats {
+            display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+        .hero-stats div {
+            text-align: center;
+        }
+        .hero-stats .num { font-size: 1.8rem; font-weight: 700; color: var(--gold); }
+        .hero-stats .label { font-size: 0.8rem; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; }
+
+        /* FILTERS */
+        .filters {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid #e5e7eb;
+            padding: 1rem 2rem;
+        }
+        .filters-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .filters-inner input[type="text"] {
+            flex: 1;
+            min-width: 200px;
+            padding: 0.7rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border 0.2s;
+        }
+        .filters-inner input[type="text"]:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
+        }
+        .filter-btns {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            border: 1px solid #d1d5db;
+            background: white;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            color: var(--text-light);
+        }
+        .filter-btn:hover { border-color: var(--gold); color: var(--gold); }
+        .filter-btn.active {
+            background: var(--gold);
+            color: white;
+            border-color: var(--gold);
+        }
+
+        /* APARTMENTS GRID */
+        .grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+        }
+        .card-img {
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+            display: block;
+        }
+        .card-body {
+            padding: 1.25rem 1.5rem 1.5rem;
+        }
+        .card-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+            color: var(--dark);
+        }
+        .card-address {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .card-desc {
+            font-size: 0.9rem;
+            color: #4b5563;
+            margin-bottom: 0.75rem;
+            line-height: 1.5;
+        }
+        .card-amenities {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+        }
+        .card-amenities span {
+            background: #f3f4f6;
+            padding: 0.25rem 0.65rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            color: #374151;
+        }
+        .card-footer {
+            margin-top: 1rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid #f3f4f6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .card-btn {
+            background: var(--gold);
+            color: white;
+            border: none;
+            padding: 0.5rem 1.25rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .card-btn:hover { background: #b89430; }
+        .card-more-label {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        /* LIGHTBOX / MODAL */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+        .modal-overlay.open { display: flex; align-items: center; justify-content: center; }
+        .modal {
+            background: white;
+            border-radius: var(--radius);
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalIn 0.3s ease-out;
+        }
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.95) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .modal-close {
+            position: sticky;
+            top: 0;
+            float: right;
+            background: rgba(0,0,0,0.05);
+            border: none;
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 10;
+            margin: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+            color: #666;
+        }
+        .modal-close:hover { background: rgba(0,0,0,0.1); }
+
+        .modal-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 0.5rem;
+            padding: 0 1.5rem 1.5rem;
+        }
+        .modal-gallery img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .modal-gallery img:hover { transform: scale(1.03); }
+        .modal-gallery img.main-photo {
+            grid-column: 1 / -1;
+            height: 400px;
+        }
+
+        .modal-body {
+            padding: 0 1.5rem 1.5rem;
+        }
+        .modal-body h2 {
+            font-size: 1.8rem;
+            margin-bottom: 0.3rem;
+        }
+        .modal-body .address {
+            color: var(--text-light);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .modal-body .desc {
+            margin-bottom: 1rem;
+            line-height: 1.7;
+        }
+        .modal-body .amenities-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .modal-body .amenities-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .modal-body .amenities-list span {
+            background: #f3f4f6;
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+        }
+
+        /* FOOTER */
+        .footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            border-top: 1px solid #e5e7eb;
+            margin-top: 2rem;
+        }
+        .footer a { color: var(--gold); text-decoration: none; }
+
+        /* RESPONSIVE */
+        @media (max-width: 640px) {
+            .hero h1 { font-size: 2rem; }
+            .grid { grid-template-columns: 1fr; padding: 1rem; }
+            .filters { padding: 0.75rem 1rem; }
+            .modal-gallery { grid-template-columns: 1fr; }
+            .modal-gallery img.main-photo { height: 250px; }
+            .modal-gallery img { height: 180px; }
+        }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #999; }
+    </style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-content">
+        <div class="hero-badge">🏡 Apartamenty w Toruniu</div>
+        <h1>Feniks <span>Apartments</span></h1>
+        <p>Luksusowe apartamenty w sercu Torunia — idealne na krótki i długi pobyt</p>
+        <div class="hero-stats">
+            <div><div class="num">19</div><div class="label">Apartamentów</div></div>
+            <div><div class="num">6</div><div class="label">Lokalizacji</div></div>
+            <div><div class="num">⭐</div><div class="label">Wysoki standard</div></div>
+        </div>
+    </div>
+</section>
+
+<!-- FILTERS -->
+<div class="filters" id="filters">
+    <div class="filters-inner">
+        <input type="text" id="searchInput" placeholder="🔍 Szukaj apartamentu, ulicy..." oninput="filterCards()">
+        <div class="filter-btns">
+            <button class="filter-btn active" onclick="setFilter('all', this)">Wszystkie</button>
+            <button class="filter-btn" onclick="setFilter('Bydgoska', this)">Bydgoska</button>
+            <button class="filter-btn" onclick="setFilter('PCK', this)">PCK</button>
+            <button class="filter-btn" onclick="setFilter('Cicha', this)">Cicha</button>
+            <button class="filter-btn" onclick="setFilter('Mostowa', this)">Mostowa</button>
+            <button class="filter-btn" onclick="setFilter('Rynek', this)">Rynek Nowomiejski</button>
+        </div>
+    </div>
+</div>
+
+<!-- APARTMENTS GRID -->
+<div class="grid" id="apartmentsGrid"></div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+    <div class="modal" id="modal">
+        <button class="modal-close" onclick="closeModal()">✕</button>
+        <div class="modal-gallery" id="modalGallery"></div>
+        <div class="modal-body" id="modalBody"></div>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+    Strona testowa — dane pochodzą z <a href="https://feniksapartments.pl" target="_blank">feniksapartments.pl</a> &bull; Stworzona przez KrzychuV2 🤖
+</div>
+
+<script>
+// ===== DATA =====
+const apartments = [
+    {
+        id: 'karmel',
+        name: 'Apartament Karmel',
+        address: 'Ul. Bydgoska 80, Toruń',
+        filter: 'Bydgoska',
+        desc: 'Elegancki apartament oferuje przytulnie urządzoną sypialnię z łóżkiem dwuosobowym, salon z dobrze wyposażonym aneksem kuchennym i nowoczesną łazienkę z prysznicem.',
+        amenities: ['Piekarnik', 'Bezpłatne WiFi', 'Żelazko', 'Deska do prasowania', 'Smart TV', 'Suszarka', 'Pralka'],
+        mainPhoto: 'https://feniksapartments.pl/wp-content/uploads/2025/07/IMG_1665-1-1024x768.jpeg',
+        photos: [
+            'https://feniksapartments.pl/wp-content/uploads/2025/07/IMG_1665-1-1024x768.jpeg',
+            'https://feniksapartments.pl/wp-content/uploads/2025/07/IMG_1664-1024x768.jpeg',
+            'https://feniksapartments.pl/wp-content/uploads/2025/07/IMG_1663-1024x768.jpeg',
+            'https://feniksapartments.pl/wp-content/uploads/2025/07/IMG_1662-1024x768.jpeg',
+            'https://feniksapartments.pl/wp-content/uploads/2025/07/IMG_1661-1024x576.jpeg',
+            'https://feniksapartments.pl/wp-content/uploads/2025/07/IMG_1666-1024x768.jpeg'
+        ]
+    },
+    {
+        id: 'argento',
+        name: 'Apartament Argento',
+        address: 'Ul. Polskiego Czerwonego Krzyża 3A, Toruń',
+        filter: 'PCK',
+        desc: 'Apartament oferuje pięknie urządzoną sypialnię, salon z dobrze wyposażonym aneksem kuchennym i łazienkę z prysznicem. Mieszkanie posiada balkon oraz miejsce parkingowe w garażu podziemnym wliczone w cenę. Oferujemy możliwość zakupu śniadania.',
+        amenities: ['Balkon', 'Pralka', 'Piekarnik', 'Zmywarka', 'Bezpłatne WiFi', 'Żelazko', 'Smart TV', 'Suszarka', 'Miejsce parkingowe', 'Opcja śniadania'],
+        mainPhoto: 'https://feniksapartments.pl/wp-content/uploads/2024/03/35b869ad-6c0b-41e2-8fbe-ca822925665b-1-1024x682.jpeg',
+        photos: [
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/35b869ad-6c0b-41e2-8fbe-ca822925665b-1-1024x682.jpeg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/b3152e88-ede4-422d-a7de-1738d9fb9ef1-1-1024x682.jpeg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/5b807254-6583-41a8-a72c-8026264ac63e-1024x682.jpeg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/c8cab8c5-65e9-454b-95a7-75450c7608a3-1024x683.jpeg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/83fa5ef9-8532-4871-a800-17ed513a67f8-1024x683.jpeg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/b5aedfc5-60ee-4d29-866c-814974e1a9f6-1024x683.jpeg'
+        ]
+    },
+    {
+        id: 'tricolore',
+        name: 'Apartament Tricolore',
+        address: 'Ul. Polskiego Czerwonego Krzyża 3, Toruń',
+        filter: 'PCK',
+        desc: 'Apartament oferuje pięknie urządzoną sypialnię, salon z dobrze wyposażonym aneksem kuchennym i łazienkę z prysznicem. Mieszkanie posiada balkon oraz miejsce parkingowe w garażu podziemnym wliczone w cenę. Oferujemy możliwość zakupu śniadania.',
+        amenities: ['Balkon', 'Pralka', 'Piekarnik', 'Bezpłatne WiFi', 'Żelazko', 'Telewizor', 'Suszarka', 'Miejsce parkingowe', 'Opcja śniadania'],
+        mainPhoto: 'https://feniksapartments.pl/wp-content/uploads/2023/09/AirBrush_20220125150720.jpg',
+        photos: [
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/AirBrush_20220125150720.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/cid186e0ce2a056976cf696-1024x683.jpeg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/cid186e0ce29bfdcd2b0cf1-1024x683.jpeg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/cid186e0bd4d8323813659-1024x728.jpeg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/cid186e0ce29cecf8740052-1024x697.jpeg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/cid186e0ce29eb6586a7ea4-1024x698.jpeg'
+        ]
+    },
+    {
+        id: 'goscinny',
+        name: 'Gościnny Zakątek',
+        address: 'Ul. Cicha 4, Toruń',
+        filter: 'Cicha',
+        desc: 'Nowoczesny apartament oferuje duże, nowocześnie urządzone sypialnie, salon ze stołem bilardowym, w pełni wyposażoną kuchnię i komfortową łazienkę z wanną i prysznicem. Mieszkanie posiada balkon i bezpłatne miejsce parkingowe wzdłuż ulicy.',
+        amenities: ['Balkon', 'Stół bilardowy', 'Piekarnik', 'Pralka', 'Bezpłatne WiFi', 'Żelazko', 'Smart TV', 'Suszarka', 'Parking bezpłatny'],
+        mainPhoto: 'https://feniksapartments.pl/wp-content/uploads/2025/01/image7-1024x683.jpeg',
+        photos: [
+            'https://feniksapartments.pl/wp-content/uploads/2025/01/image7-1024x683.jpeg',
+            'https://feniksapartments.pl/wp-content/uploads/2025/01/image0-3-1024x683.jpeg',
+            'https://feniksapartments.pl/wp-content/uploads/2025/01/image2-1-1024x683.jpeg',
+            'https://feniksapartments.pl/wp-content/uploads/2025/01/image2-3-1024x683.jpeg',
+            'https://feniksapartments.pl/wp-content/uploads/2025/01/image6-1-1024x683.jpeg',
+            'https://feniksapartments.pl/wp-content/uploads/2025/01/image3-3-1024x683.jpeg'
+        ]
+    },
+    {
+        id: 'szymborska1',
+        name: 'Apartament Szymborska Nr.1',
+        address: 'Ul. Mostowa 18, Toruń',
+        filter: 'Mostowa',
+        desc: 'Elegancki apartament oferuje dużą, przytulnie urządzoną sypialnię z łóżkiem typu King size, salon z dobrze wyposażonym aneksem kuchennym i nowoczesną łazienkę z prysznicem.',
+        amenities: ['Łóżko King size', 'Zmywarka', 'Bezpłatne WiFi', 'Żelazko', 'Smart TV', 'Suszarka', 'Pralka'],
+        mainPhoto: 'https://feniksapartments.pl/wp-content/uploads/2023/09/IMG_0273-1024x683.jpg',
+        photos: [
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/IMG_0273-1024x683.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/IMG_0274-1024x683.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/IMG_0277-1024x683.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/IMG_0272-1024x678.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/IMG_0282-1024x683.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/IMG_0275-1024x683.jpg'
+        ]
+    },
+    {
+        id: 'szymborska2',
+        name: 'Apartament Szymborska Nr.2',
+        address: 'Ul. Mostowa 18, Toruń',
+        filter: 'Mostowa',
+        desc: 'Elegancki apartament oferuje dużą, przytulnie urządzoną przestrzeń sypialnianą z łóżkiem typu King size, salon z dobrze wyposażonym aneksem kuchennym i nowoczesną łazienkę z prysznicem. Piękny widok na zabytkową ulicę.',
+        amenities: ['Łóżko King size', 'Widok na zabytki', 'Zmywarka', 'Bezpłatne WiFi', 'Żelazko', 'Smart TV', 'Suszarka'],
+        mainPhoto: 'https://feniksapartments.pl/wp-content/uploads/2023/09/IMG_0270-1024x683.jpg',
+        photos: [
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/IMG_0270-1024x683.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/IMG_0271-1024x683.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/IMG_0269-1024x683.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/IMG_0268-1024x683.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/IMG_0268-1024x683.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/IMG_0270-1-1024x683.jpg'
+        ]
+    },
+    {
+        id: 'giallo',
+        name: 'Apartament Giallo',
+        address: 'Ul. Polskiego Czerwonego Krzyża 3, Toruń',
+        filter: 'PCK',
+        desc: 'Apartament oferuje pięknie urządzoną sypialnię, salon z dobrze wyposażonym aneksem kuchennym i łazienkę z prysznicem. Mieszkanie posiada dwa balkony oraz miejsce parkingowe w garażu podziemnym wliczone w cenę. Oferujemy możliwość zakupu śniadania.',
+        amenities: ['2 balkony', 'Pralka', 'Piekarnik', 'Bezpłatne WiFi', 'Żelazko', 'Smart TV', 'Suszarka', 'Miejsce parkingowe', 'Opcja śniadania'],
+        mainPhoto: 'https://feniksapartments.pl/wp-content/uploads/2023/09/cropped-cid186e0bd4d1ab4c50ac51-scaled-1-1024x654.jpeg',
+        photos: [
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/cropped-cid186e0bd4d1ab4c50ac51-scaled-1-1024x654.jpeg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/AirBrush_20220125152412.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/cid186e0bd4d3485258af23-1024x719.jpeg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/AirBrush_20220125152309.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/cid186e0bd4d6afc8651767-1024x683.jpeg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/cid186e0bd4d50e4e3036b5-1024x699.jpeg'
+        ]
+    },
+    {
+        id: 'nero',
+        name: 'Apartament Nero',
+        address: 'Ul. Polskiego Czerwonego Krzyża 3, Toruń',
+        filter: 'PCK',
+        desc: 'Apartament oferuje 2 sypialnie, salon z dobrze wyposażonym aneksem kuchennym i łazienkę z prysznicem. Mieszkanie posiada 2 balkony oraz miejsce parkingowe w garażu podziemnym wliczone w cenę. Oferujemy możliwość zakupu śniadania.',
+        amenities: ['2 sypialnie', '2 balkony', 'Pralka', 'Piekarnik', 'Bezpłatne WiFi', 'Żelazko', 'Telewizor', 'Suszarka', 'Miejsce parkingowe', 'Opcja śniadania'],
+        mainPhoto: 'https://feniksapartments.pl/wp-content/uploads/2023/09/AirBrush_20220125143210-2.jpg',
+        photos: [
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/AirBrush_20220125143210-2.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/AirBrush_20220125150249.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/IMG_0008-2-e1695821593881.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/AirBrush_20230927153559.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/AirBrush_20230927153536.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/IMG_0027.jpg'
+        ]
+    },
+    {
+        id: 'europa1',
+        name: 'Apartamenty Europa Ap.1',
+        address: 'Ul. Rynek Nowomiejski 2, Toruń',
+        filter: 'Rynek',
+        desc: 'Apartament oferuje sypialnię z salonem, dobrze wyposażoną kuchnię i łazienkę z prysznicem.',
+        amenities: ['Mikrofala', 'Bezpłatne WiFi', 'Żelazko', 'Telewizor', 'Suszarka'],
+        mainPhoto: 'https://feniksapartments.pl/wp-content/uploads/2023/09/DSC_9116-1024x681.jpg',
+        photos: [
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/DSC_9116-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/DSC_9150-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/DSC_9162-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/DSC_9175-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/DSC_9189-1024x681.jpg'
+        ]
+    },
+    {
+        id: 'europa2',
+        name: 'Apartamenty Europa Ap.2',
+        address: 'Ul. Rynek Nowomiejski 2, Toruń',
+        filter: 'Rynek',
+        desc: 'Apartament oferuje dużą, nowocześnie urządzoną sypialnię, salon z w pełni wyposażonym aneksem kuchennym i nowoczesną łazienkę z prysznicem. Mieszkanie posiada balkon.',
+        amenities: ['Balkon', 'Piekarnik', 'Bezpłatne WiFi', 'Żelazko', 'Telewizor', 'Suszarka'],
+        mainPhoto: 'https://feniksapartments.pl/wp-content/uploads/2023/09/Apartament-Europa_0001-1024x684.jpg',
+        photos: [
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/Apartament-Europa_0001-1024x684.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/Apartament-Europa_0002-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/Apartament-Europa_0004-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/Apartament-Europa_0008-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/Apartament-Europa_0005-1024x684.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/Apartament-Europa_0007-1024x681.jpg'
+        ]
+    },
+    {
+        id: 'europa3',
+        name: 'Apartamenty Europa Ap.3',
+        address: 'Ul. Rynek Nowomiejski 2, Toruń',
+        filter: 'Rynek',
+        desc: 'Apartament oferuje sypialnię z salonem, dobrze wyposażoną kuchnię i łazienkę z prysznicem.',
+        amenities: ['Mikrofala', 'Bezpłatne WiFi', 'Żelazko', 'Telewizor', 'Suszarka'],
+        mainPhoto: 'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_5485-1-1024x681.jpg',
+        photos: [
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_5485-1-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_5463-1024x682.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_5465-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_5503-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_5481-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_5456-1024x679.jpg'
+        ]
+    },
+    {
+        id: 'europa4',
+        name: 'Apartamenty Europa Ap.4',
+        address: 'Ul. Rynek Nowomiejski 2, Toruń',
+        filter: 'Rynek',
+        desc: 'Nowoczesny apartament oferuje dużą, nowocześnie urządzoną sypialnię, salon z w pełni wyposażonym aneksem kuchennym i luksusową łazienkę z prysznicem. Mieszkanie posiada balkon.',
+        amenities: ['Balkon', 'Piekarnik', 'Pralka', 'Bezpłatne WiFi', 'Żelazko', 'Smart TV', 'Suszarka'],
+        mainPhoto: 'https://feniksapartments.pl/wp-content/uploads/2025/07/A3CD2077-F3E8-4C93-B3F5-DBDD20D1F53D-1024x768.jpeg',
+        photos: [
+            'https://feniksapartments.pl/wp-content/uploads/2025/07/A3CD2077-F3E8-4C93-B3F5-DBDD20D1F53D-1024x768.jpeg',
+            'https://feniksapartments.pl/wp-content/uploads/2025/07/A9849645-6ABF-4044-BC3B-3B988DADAC82-1024x768.jpeg',
+            'https://feniksapartments.pl/wp-content/uploads/2025/07/48139DFB-8AFF-4091-8553-D7D6C548241A-1024x768.jpeg',
+            'https://feniksapartments.pl/wp-content/uploads/2025/07/04F324A9-3F95-4BF8-9905-3F5DFAB7F62A-1024x768.jpeg',
+            'https://feniksapartments.pl/wp-content/uploads/2025/07/991E58FB-2BDF-4EE9-BC69-3DCE3568E66E-1024x768.jpeg',
+            'https://feniksapartments.pl/wp-content/uploads/2025/07/1659DDFE-20E5-4D33-AF37-85072E02279E-1024x768.jpeg'
+        ]
+    },
+    {
+        id: 'europa5',
+        name: 'Apartamenty Europa Ap.5',
+        address: 'Ul. Rynek Nowomiejski 2, Toruń',
+        filter: 'Rynek',
+        desc: 'Apartament oferuje sypialnię z salonem, dobrze wyposażoną kuchnię i łazienkę z prysznicem.',
+        amenities: ['Mikrofala', 'Bezpłatne WiFi', 'Żelazko', 'Telewizor', 'Suszarka'],
+        mainPhoto: 'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0717-1-1024x681.jpg',
+        photos: [
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0717-1-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0650-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0833-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0689-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0808-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0821-1024x681.jpg'
+        ]
+    },
+    {
+        id: 'europa6',
+        name: 'Apartamenty Europa Ap.6',
+        address: 'Ul. Rynek Nowomiejski 2, Toruń',
+        filter: 'Rynek',
+        desc: 'Apartament oferuje artystycznie urządzoną sypialnię, salon z dobrze wyposażonym aneksem kuchennym i łazienkę z prysznicem. Mieszkanie posiada balkon.',
+        amenities: ['Balkon', 'Bezpłatne WiFi', 'Żelazko', 'Telewizor', 'Suszarka'],
+        mainPhoto: 'https://feniksapartments.pl/wp-content/uploads/2023/09/DSC_5600-1024x681.jpg',
+        photos: [
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/DSC_5600-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/DSC_5625-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/DSC_5665-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/DSC_5639-1-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/DSC_5694-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2023/09/DSC_5654-1024x681.jpg'
+        ]
+    },
+    {
+        id: 'europa7',
+        name: 'Apartamenty Europa Ap.7',
+        address: 'Ul. Rynek Nowomiejski 2, Toruń',
+        filter: 'Rynek',
+        desc: 'Apartament oferuje 2 nowocześnie urządzone sypialnie, dobrze wyposażoną kuchnię i nowoczesną łazienkę z prysznicem.',
+        amenities: ['2 sypialnie', 'Bezpłatne WiFi', 'Żelazko', 'Telewizor', 'Suszarka', 'Mikrofala'],
+        mainPhoto: 'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_9219-1-1024x681.jpg',
+        photos: [
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_9219-1-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_9282-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_9245-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_9303-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_9296-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_9253-1024x681.jpg'
+        ]
+    },
+    {
+        id: 'europa8',
+        name: 'Apartamenty Europa Ap.8',
+        address: 'Ul. Rynek Nowomiejski 2, Toruń',
+        filter: 'Rynek',
+        desc: 'Apartament oferuje przytulnie urządzoną sypialnię, salon z dobrze wyposażonym aneksem kuchennym i nowoczesną łazienkę z prysznicem. Piękny widok.',
+        amenities: ['Widok', 'Bezpłatne WiFi', 'Żelazko', 'Telewizor', 'Suszarka', 'Mikrofala'],
+        mainPhoto: 'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_5752-1024x681.jpg',
+        photos: [
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_5752-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_5706-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_5744-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_5747-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_5752-1-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_5723-1024x681.jpg'
+        ]
+    },
+    {
+        id: 'europa10',
+        name: 'Apartamenty Europa Ap.10',
+        address: 'Ul. Rynek Nowomiejski 2, Toruń',
+        filter: 'Rynek',
+        desc: 'Apartament oferuje przytulną przestrzeń sypialnianą z salonem, dobrze wyposażony aneks kuchenny i łazienkę z prysznicem.',
+        amenities: ['Mikrofala', 'Bezpłatne WiFi', 'Żelazko', 'Telewizor', 'Suszarka'],
+        mainPhoto: 'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0614-1024x681.jpg',
+        photos: [
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0614-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0621-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0637-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0612-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0614-1-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0632-1024x681.jpg'
+        ]
+    },
+    {
+        id: 'europa11',
+        name: 'Apartamenty Europa Ap.11',
+        address: 'Ul. Rynek Nowomiejski 2, Toruń',
+        filter: 'Rynek',
+        desc: 'Apartament oferuje przytulną przestrzeń sypialnianą z salonem, dobrze wyposażony aneks kuchenny i łazienkę z prysznicem.',
+        amenities: ['Mikrofala', 'Bezpłatne WiFi', 'Żelazko', 'Telewizor', 'Suszarka'],
+        mainPhoto: 'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0440-1024x681.jpg',
+        photos: [
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0440-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0460-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0500-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0429-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0491-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0421-1024x681.jpg'
+        ]
+    },
+    {
+        id: 'europa12',
+        name: 'Apartamenty Europa Ap.12',
+        address: 'Ul. Rynek Nowomiejski 2, Toruń',
+        filter: 'Rynek',
+        desc: 'Apartament oferuje przytulną przestrzeń sypialnianą z salonem, dobrze wyposażony aneks kuchenny i łazienkę z prysznicem.',
+        amenities: ['Mikrofala', 'Bezpłatne WiFi', 'Żelazko', 'Telewizor', 'Suszarka'],
+        mainPhoto: 'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0385-1024x681.jpg',
+        photos: [
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0385-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0296-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0404-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0365-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0394-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0385-1-1024x681.jpg'
+        ]
+    },
+    {
+        id: 'europa13',
+        name: 'Apartamenty Europa Ap.13',
+        address: 'Ul. Rynek Nowomiejski 2, Toruń',
+        filter: 'Rynek',
+        desc: 'Apartament oferuje przytulną przestrzeń sypialnianą z salonem, dobrze wyposażony aneks kuchenny i łazienkę z prysznicem.',
+        amenities: ['Mikrofala', 'Bezpłatne WiFi', 'Żelazko', 'Telewizor', 'Suszarka'],
+        mainPhoto: 'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0235-1024x681.jpg',
+        photos: [
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0235-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0238-1024x682.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0279-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0248-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0278-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0211-1-1024x681.jpg'
+        ]
+    },
+    {
+        id: 'europa14',
+        name: 'Apartamenty Europa Ap.14',
+        address: 'Ul. Rynek Nowomiejski 2, Toruń',
+        filter: 'Rynek',
+        desc: 'Apartament oferuje przytulną przestrzeń sypialnianą z salonem, dobrze wyposażony aneks kuchenny i łazienkę z prysznicem.',
+        amenities: ['Mikrofala', 'Bezpłatne WiFi', 'Żelazko', 'Telewizor', 'Suszarka'],
+        mainPhoto: 'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0154-1-1024x681.jpg',
+        photos: [
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0154-1-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0205-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0161-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0183-1024x681.jpg',
+            'https://feniksapartments.pl/wp-content/uploads/2024/03/DSC_0172-1024x681.jpg'
+        ]
+    }
+];
+
+// ===== RENDER =====
+let currentFilter = 'all';
+
+function renderCards(data) {
+    const grid = document.getElementById('apartmentsGrid');
+    grid.innerHTML = data.map(apt => {
+        const am = apt.amenities.slice(0, 4).map(a => `<span>${a}</span>`).join('');
+        const more = apt.amenities.length > 4 ? `<span class="card-more-label">+${apt.amenities.length - 4}</span>` : '';
+        return `
+        <div class="card" onclick="openModal('${apt.id}')">
+            <img class="card-img" src="${apt.mainPhoto}" alt="${apt.name}" loading="lazy">
+            <div class="card-body">
+                <div class="card-title">${apt.name}</div>
+                <div class="card-address">📍 ${apt.address}</div>
+                <div class="card-desc">${apt.desc}</div>
+                <div class="card-amenities">${am}${more}</div>
+                <div class="card-footer">
+                    <button class="card-btn">Zobacz więcej</button>
+                    <span style="font-size:0.8rem;color:var(--text-light)">${apt.photos.length} zdjęć</span>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function openModal(id) {
+    const apt = apartments.find(a => a.id === id);
+    if (!apt) return;
+    
+    const gal = document.getElementById('modalGallery');
+    gal.innerHTML = apt.photos.map((p, i) => 
+        `<img src="${p}" alt="${apt.name} ${i+1}" class="${i===0?'main-photo':''}" loading="lazy">`
+    ).join('');
+    
+    const body = document.getElementById('modalBody');
+    body.innerHTML = `
+        <h2>${apt.name}</h2>
+        <div class="address">📍 ${apt.address}</div>
+        <div class="desc">${apt.desc}</div>
+        <div class="amenities-title">🏷️ Udogodnienia:</div>
+        <div class="amenities-list">${apt.amenities.map(a => `<span>${a}</span>`).join('')}</div>
+    `;
+    
+    document.getElementById('modalOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+function closeModalOutside(e) {
+    if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+
+function filterCards() {
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    const filtered = apartments.filter(apt => {
+        const matchFilter = currentFilter === 'all' || apt.filter === currentFilter;
+        const matchSearch = apt.name.toLowerCase().includes(search) || 
+                           apt.address.toLowerCase().includes(search) ||
+                           apt.desc.toLowerCase().includes(search);
+        return matchFilter && matchSearch;
+    });
+    renderCards(filtered);
+}
+
+function setFilter(filter, btn) {
+    currentFilter = filter;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    filterCards();
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// Initial render
+renderCards(apartments);
+</script>
+
+</body>
+</html>
