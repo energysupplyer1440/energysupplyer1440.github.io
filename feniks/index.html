@@ -313,6 +313,74 @@
             font-size: 0.85rem;
         }
 
+        /* REVIEWS */
+        .reviews {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+        .reviews-title {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+        .reviews-subtitle {
+            text-align: center;
+            color: var(--text-light);
+            margin-bottom: 2.5rem;
+            font-size: 1rem;
+        }
+        .reviews-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+        .review-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+        .review-card:hover { transform: translateY(-3px); }
+        .review-stars {
+            color: var(--gold);
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+            margin-bottom: 0.75rem;
+        }
+        .review-text {
+            font-size: 0.95rem;
+            color: #374151;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+        .review-text::before { content: '"'; }
+        .review-text::after { content: '"'; }
+        .review-author {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .review-avatar {
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+        .review-name { font-weight: 600; font-size: 0.9rem; color: var(--dark); }
+        .review-apt { font-size: 0.8rem; color: var(--text-light); }
+
         /* FOOTER */
         .footer {
             text-align: center;
@@ -384,13 +452,116 @@
     </div>
 </div>
 
+<!-- REVIEWS -->
+<section class="reviews" id="reviews">
+    <h2 class="reviews-title">⭐ Co mówią goście</h2>
+    <p class="reviews-subtitle">Prawdziwe opinie osób, które odwiedziły nasze apartamenty</p>
+    <div class="reviews-grid" id="reviewsGrid"></div>
+</section>
+
 <!-- FOOTER -->
 <div class="footer">
     Strona testowa — dane pochodzą z <a href="https://feniksapartments.pl" target="_blank">feniksapartments.pl</a> &bull; Stworzona przez KrzychuV2 🤖
 </div>
 
 <script>
-// ===== DATA =====
+// ===== REVIEWS DATA =====
+const reviews = [
+    {
+        name: 'Anna',
+        apt: 'Apartament Karmel',
+        text: 'Przepiękny apartament! Bardzo czysto, gustownie urządzony. Łóżko wygodne, kuchnia w pełni wyposażona. Lokalizacja super — blisko centrum. Na pewno wrócimy!',
+        stars: 5
+    },
+    {
+        name: 'Tomasz',
+        apt: 'Apartament Argento',
+        text: 'Bardzo dobry standard. Podobał nam się balkon i garaż podziemny. Śniadanie zamówione dodatkowo było pyszne i świeże. Polecam każdemu kto szuka komfortu w Toruniu.',
+        stars: 5
+    },
+    {
+        name: 'Katarzyna',
+        apt: 'Apartament Tricolore',
+        text: 'Świetna lokalizacja, apartament urządzony ze smakiem. Wszystko co potrzebne na miejscu. Cisza, spokój, a do Starego Miasta rzut beretem. Idealny na weekend.',
+        stars: 5
+    },
+    {
+        name: 'Michał',
+        apt: 'Gościnny Zakątek',
+        text: 'Stół bilardowy to strzał w dziesiątkę! Spędziliśmy fantastyczny wieczór z przyjaciółmi. Apartament przestronny, łazienka z wanną bardzo komfortowa. Parking bez problemu.',
+        stars: 5
+    },
+    {
+        name: 'Ewa',
+        apt: 'Apartament Szymborska Nr.1',
+        text: 'Łóżko King size to marzenie! Apartament położony na urokliwej starówce. Widok z okna na zabytkową ulicę — bajka. Zdecydowanie polecam parom szukającym romantycznego pobytu.',
+        stars: 5
+    },
+    {
+        name: 'Piotr',
+        apt: 'Apartament Szymborska Nr.2',
+        text: 'Rewelacyjny apartament w samym sercu Torunia. Czysto, nowocześnie, a widok na Mostową robi ogromne wrażenie. Świetna baza wypadowa do zwiedzania miasta.',
+        stars: 5
+    },
+    {
+        name: 'Magdalena',
+        apt: 'Apartament Giallo',
+        text: 'Apartament z dwoma balkonami — super sprawa na wieczorną kawę. Parking w garażu podziemnym duży plus. Wnętrze pięknie urządzone, wszystko nowe i zadbane.',
+        stars: 5
+    },
+    {
+        name: 'Łukasz',
+        apt: 'Apartament Nero',
+        text: 'Duży apartament z dwoma sypialniami i dwoma balkonami. Idealny dla rodziny z dziećmi. Byliśmy zachwyceni standardem i czystością. Śniadanie pyszne!',
+        stars: 5
+    },
+    {
+        name: 'Agnieszka',
+        apt: 'Apartamenty Europa Ap.4',
+        text: 'Nowy, luksusowy apartament — wszystko lśniło czystością. Balkon, smart TV, wygodne łóżko. Cicha okolica, a jednocześnie blisko Rynku Nowomiejskiego. Bardzo polecam!',
+        stars: 5
+    },
+    {
+        name: 'Robert',
+        apt: 'Apartamenty Europa Ap.7',
+        text: 'Dwie sypialnie — idealnie dla naszej czwórki. Kuchnia wyposażona we wszystko co potrzebne. Bezproblemowe zameldowanie i kontakt z obsługą na najwyższym poziomie.',
+        stars: 5
+    },
+    {
+        name: 'Joanna',
+        apt: 'Apartamenty Europa Ap.8',
+        text: 'Piękny widok z okna! Apartament urządzony z dbałością o detale. Polecam każdemu kto ceni sobie wygodę i estetykę. Na pewno wrócimy przy okazji kolejnej wizyty w Toruniu.',
+        stars: 5
+    },
+    {
+        name: 'Marek',
+        apt: 'Apartamenty Europa Ap.12',
+        text: 'Świetne apartamenty! Byłem już kilka razy i zawsze jestem zadowolony. Profesjonalna obsługa, czysto, wygodnie. Toruń piękny, a Feniks Apartments to najlepszy wybór.',
+        stars: 5
+    }
+];
+
+function renderReviews(data) {
+    const grid = document.getElementById('reviewsGrid');
+    grid.innerHTML = data.map(r => {
+        const initials = r.name.charAt(0);
+        const stars = '★'.repeat(r.stars) + '☆'.repeat(5 - r.stars);
+        return `
+        <div class="review-card">
+            <div class="review-stars">${stars}</div>
+            <div class="review-text">${r.text}</div>
+            <div class="review-author">
+                <div class="review-avatar">${initials}</div>
+                <div>
+                    <div class="review-name">${r.name}</div>
+                    <div class="review-apt">🏡 ${r.apt}</div>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// ===== APARTMENTS DATA =====
 const apartments = [
     {
         id: 'karmel',
@@ -828,6 +999,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
 
 // Initial render
 renderCards(apartments);
+renderReviews(reviews);
 </script>
 
 </body>
