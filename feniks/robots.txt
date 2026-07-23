@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://energysupplyer1440.github.io/feniks/sitemap.xml
